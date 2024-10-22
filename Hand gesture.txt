@@ -1,0 +1,38 @@
+Hand gesture
+
+PPT slides:
+1. Photo
+
+Abstract:
+- Smart home application
+- Sign language
+- Fast and Light weight is the ideal
+
+Introduction
+- Specific use cases for each point in abstract
+- (Review current usage/requirement statistics)
+- What questions are we going to answer?
+- Flow of the report.
+
+Setup
+- Device setup: config specifications
+- Code setup: tools, algos used
+- Dataset (if used): describe the metadata
+
+Task
+- What are we doing?
+- How we approach it?
+- What features we took in consideration?
+
+Dataset
+- Meta data like number of datapoints
+- How we gathered data?
+- Mention ethical consents (if any).
+
+Experiment
+- How we performed the train and test?
+- Why we did so?
+
+Results
+
+Conclusion
