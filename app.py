@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
 import csv
 import copy
 import argparse
-import itertools
 
 import cv2 as cv
-import numpy as np
 import mediapipe as mp
 from flask import Flask, Response, render_template
 
