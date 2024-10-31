@@ -3,6 +3,9 @@ import cv2 as cv
 
 
 class CvFpsCalc(object):
+    """
+    Computes FPS at runtime.
+    """
     def __init__(self, buffer_len=1):
         self._start_tick = cv.getTickCount()
         self._freq = 1000.0 / cv.getTickFrequency()

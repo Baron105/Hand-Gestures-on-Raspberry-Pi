@@ -4,8 +4,6 @@ import csv
 import copy
 import argparse
 import itertools
-from collections import Counter
-from collections import deque
 
 import cv2 as cv
 import numpy as np
@@ -16,6 +14,9 @@ from model import KeyPointClassifier
 
 
 def get_args():
+    """
+    Set our hyperparameters for the mdoel.
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--device", type=int, default=0)
@@ -145,6 +146,12 @@ def main():
 
 
 def select_mode(key, mode):
+    """
+    Selects mode: 
+    0 -> inference 
+    1 -> capture datapoints
+    keys can be [a-z], i.e. supports 26 labels.
+    """
     number = -1
     if 97 <= key <= 122:  # 0 ~ 25
         number = key - 97
