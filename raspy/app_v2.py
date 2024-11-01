@@ -1,3 +1,4 @@
+import socket
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import mediapipe as mp
@@ -63,7 +64,8 @@ def frame_capture():
                 if not frame_queue.full():
                     frame_queue.put(frame)
                 else:
-                    print("Frame queue is full, dropping frames.")
+                    pass
+                    # print("Frame queue is full, dropping frames.")
             else:
                 print("Error: Could not read frame.")
         else:
@@ -81,7 +83,7 @@ def stream_frame():
         start_tick = cv.getTickCount()
 
         # Only process every nth frame
-        if frame_count == 0:
+        if frame_count % skip_frames == 0:
             hand_sign, processed_frame = process_frame(frame)
 
             _, buffer = cv.imencode('.jpg', processed_frame)
@@ -99,7 +101,8 @@ def stream_frame():
         frame_count += 1  # Increment frame_count for each frame received
         frame_count %= skip_frames
     else:
-        print("Frame queue is empty.")
+        pass
+        # print("Frame queue is empty.")
 
     # Limit the frame rate
     socketio.sleep(1 / 15)
@@ -126,5 +129,20 @@ def handle_disconnect():
         cap = None
         print("Camera released.")
 
+def get_private_ip():
+    """Function to retrieve the private IP address of the machine."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # Connect to an arbitrary address (doesn't matter for getting local IP)
+        s.connect(("8.8.8.8", 80))  # Google DNS
+        return s.getsockname()[0]
+    except Exception as e:
+        print(f"Error retrieving private IP: {e}")
+        return "127.0.0.1"  # Fallback to localhost
+    finally:
+        s.close()
+
 if __name__ == '__main__':
+    private_ip = get_private_ip()  # Get the private IP address
+    print(f"Running on http://{private_ip}:5000")  # Print the IP address
     socketio.run(app, host='0.0.0.0', port=5000)
