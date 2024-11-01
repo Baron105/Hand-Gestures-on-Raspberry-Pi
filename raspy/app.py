@@ -14,6 +14,13 @@ from model import KeyPointClassifier
 
 # Global declaration of args
 args = None
+cap = None
+hands = None
+keypoint_classifier = None
+keypoint_classifier_labels = None
+cvFpsCalc = None
+frame_count = 0
+skip_frames = 2
 
 # Initialize flask app
 app = Flask(__name__)
@@ -49,45 +56,8 @@ def get_args():
 
 
 def generate_frames():
-    # Argument parsing #################################################################
 
-    cap_device = args.device
-    cap_width = args.width
-    cap_height = args.height
-
-    use_static_image_mode = args.use_static_image_mode
-    min_detection_confidence = args.min_detection_confidence
-    min_tracking_confidence = args.min_tracking_confidence
-
-    use_brect = True
-
-    # Camera preparation ###############################################################
-    cap = cv.VideoCapture(cap_device)
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, cap_width)
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, cap_height)
-
-    # Model load #############################################################
-    mp_hands = mp.solutions.hands
-    hands = mp_hands.Hands(
-        static_image_mode=use_static_image_mode,
-        max_num_hands=1,
-        min_detection_confidence=min_detection_confidence,
-        min_tracking_confidence=min_tracking_confidence,
-    )
-
-    keypoint_classifier = KeyPointClassifier()
-
-    # Read labels ###########################################################
-    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
-              encoding='utf-8-sig') as f:
-        keypoint_classifier_labels = csv.reader(f)
-        keypoint_classifier_labels = [
-            row[0] for row in keypoint_classifier_labels
-        ]
-
-    # FPS Measurement ########################################################
-    cvFpsCalc = CvFpsCalc(buffer_len=10)
-
+    global frame_count, skip_frames, hands, keypoint_classifier_labels, keypoint_classifier, cap, cvFpsCalc
     #  ########################################################################
     mode = 0
     number = -1
@@ -104,6 +74,11 @@ def generate_frames():
         ret, image = cap.read()
         if not ret:
             break
+        
+        frame_count = (frame_count+1) % skip_frames
+        if frame_count == 0:
+            continue
+
         image = cv.flip(image, 1)  # Mirror display
         debug_image = copy.deepcopy(image)
 
@@ -151,45 +126,8 @@ def generate_frames():
 
 
 def normal_mode():
-    # Argument parsing #################################################################
 
-    cap_device = args.device
-    cap_width = args.width
-    cap_height = args.height
-
-    use_static_image_mode = args.use_static_image_mode
-    min_detection_confidence = args.min_detection_confidence
-    min_tracking_confidence = args.min_tracking_confidence
-
-    use_brect = True
-
-    # Camera preparation ###############################################################
-    cap = cv.VideoCapture(cap_device)
-    cap.set(cv.CAP_PROP_FRAME_WIDTH, cap_width)
-    cap.set(cv.CAP_PROP_FRAME_HEIGHT, cap_height)
-
-    # Model load #############################################################
-    mp_hands = mp.solutions.hands
-    hands = mp_hands.Hands(
-        static_image_mode=use_static_image_mode,
-        max_num_hands=1,
-        min_detection_confidence=min_detection_confidence,
-        min_tracking_confidence=min_tracking_confidence,
-    )
-
-    keypoint_classifier = KeyPointClassifier()
-
-    # Read labels ###########################################################
-    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
-              encoding='utf-8-sig') as f:
-        keypoint_classifier_labels = csv.reader(f)
-        keypoint_classifier_labels = [
-            row[0] for row in keypoint_classifier_labels
-        ]
-
-    # FPS Measurement ########################################################
-    cvFpsCalc = CvFpsCalc(buffer_len=10)
-
+    global frame_count, skip_frames, hands, keypoint_classifier_labels, keypoint_classifier, cap, cvFpsCalc
     #  ########################################################################
     mode = 0
 
@@ -206,6 +144,10 @@ def normal_mode():
         ret, image = cap.read()
         if not ret:
             break
+
+        frame_count = (frame_count+1) % skip_frames
+        if frame_count == 0:
+            continue
         image = cv.flip(image, 1)  # Mirror display
         debug_image = copy.deepcopy(image)
 
@@ -262,7 +204,35 @@ def index():
 
 if __name__ == '__main__':
 
-    args = get_args()   
+    args = get_args()  
+    use_brect = True
+
+    # Camera preparation ###############################################################
+    cap = cv.VideoCapture(args.device)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, args.width)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, args.height)
+
+    # Model load #############################################################
+    mp_hands = mp.solutions.hands
+    hands = mp_hands.Hands(
+        static_image_mode=args.use_static_image_mode,
+        max_num_hands=1,
+        min_detection_confidence=args.min_detection_confidence,
+        min_tracking_confidence=args.min_tracking_confidence,
+    )
+
+    keypoint_classifier = KeyPointClassifier()
+
+    # Read labels ###########################################################
+    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
+              encoding='utf-8-sig') as f:
+        keypoint_classifier_labels = csv.reader(f)
+        keypoint_classifier_labels = [
+            row[0] for row in keypoint_classifier_labels
+        ]
+
+    # FPS Measurement ########################################################
+    cvFpsCalc = CvFpsCalc(buffer_len=10)
 
     if args.livestream:
         # Stream the app
