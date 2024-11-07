@@ -49,6 +49,9 @@ def get_args():
 
 
 def generate_frames():
+    """
+    Generate frames for the video stream.
+    """
     # Argument parsing #################################################################
 
     cap_device = args.device
@@ -151,6 +154,9 @@ def generate_frames():
 
 
 def normal_mode():
+    """
+    Run the app in normal mode, running locally.
+    """
     # Argument parsing #################################################################
 
     cap_device = args.device
