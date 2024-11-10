@@ -26,22 +26,27 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--device", type=int, default=0)
-    parser.add_argument("--width", help='cap width', type=int, default=960)
-    parser.add_argument("--height", help='cap height', type=int, default=540)
+    parser.add_argument("--width", help="cap width", type=int, default=960)
+    parser.add_argument("--height", help="cap height", type=int, default=540)
 
-    parser.add_argument('--use_static_image_mode', action='store_true')
-    parser.add_argument("--min_detection_confidence",
-                        help='min_detection_confidence',
-                        type=float,
-                        default=0.7)
-    parser.add_argument("--min_tracking_confidence",
-                        help='min_tracking_confidence',
-                        type=int,
-                        default=0.5)
-    
+    parser.add_argument("--use_static_image_mode", action="store_true")
+    parser.add_argument(
+        "--min_detection_confidence",
+        help="min_detection_confidence",
+        type=float,
+        default=0.7,
+    )
+    parser.add_argument(
+        "--min_tracking_confidence",
+        help="min_tracking_confidence",
+        type=int,
+        default=0.5,
+    )
+
     # Livestream argument
-    parser.add_argument('--livestream', help="Enable livestream mode",
-                        action='store_true')
+    parser.add_argument(
+        "--livestream", help="Enable livestream mode", action="store_true"
+    )
 
     args = parser.parse_args()
 
@@ -81,12 +86,11 @@ def generate_frames():
     keypoint_classifier = KeyPointClassifier()
 
     # Read labels ###########################################################
-    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
-              encoding='utf-8-sig') as f:
+    with open(
+        "model/keypoint_classifier/keypoint_classifier_label.csv", encoding="utf-8-sig"
+    ) as f:
         keypoint_classifier_labels = csv.reader(f)
-        keypoint_classifier_labels = [
-            row[0] for row in keypoint_classifier_labels
-        ]
+        keypoint_classifier_labels = [row[0] for row in keypoint_classifier_labels]
 
     # FPS Measurement ########################################################
     cvFpsCalc = CvFpsCalc(buffer_len=10)
@@ -119,8 +123,9 @@ def generate_frames():
 
         #  ####################################################################
         if results.multi_hand_landmarks is not None:
-            for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
-                                                  results.multi_handedness):
+            for hand_landmarks, handedness in zip(
+                results.multi_hand_landmarks, results.multi_handedness
+            ):
                 # Bounding box calculation
                 brect = calc_bounding_rect(debug_image, hand_landmarks)
                 # Landmark calculation
@@ -139,7 +144,7 @@ def generate_frames():
                     debug_image,
                     brect,
                     handedness,
-                    keypoint_classifier_labels[hand_sign_id]
+                    keypoint_classifier_labels[hand_sign_id],
                 )
         else:
             pass
@@ -147,10 +152,9 @@ def generate_frames():
         debug_image = draw_info(debug_image, fps, mode, number)
 
         # Encode the frame for streaming
-        ret, buffer = cv.imencode('.jpg', debug_image)
+        ret, buffer = cv.imencode(".jpg", debug_image)
         frame = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
 
 def normal_mode():
@@ -186,12 +190,11 @@ def normal_mode():
     keypoint_classifier = KeyPointClassifier()
 
     # Read labels ###########################################################
-    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
-              encoding='utf-8-sig') as f:
+    with open(
+        "model/keypoint_classifier/keypoint_classifier_label.csv", encoding="utf-8-sig"
+    ) as f:
         keypoint_classifier_labels = csv.reader(f)
-        keypoint_classifier_labels = [
-            row[0] for row in keypoint_classifier_labels
-        ]
+        keypoint_classifier_labels = [row[0] for row in keypoint_classifier_labels]
 
     # FPS Measurement ########################################################
     cvFpsCalc = CvFpsCalc(buffer_len=10)
@@ -224,8 +227,9 @@ def normal_mode():
 
         #  ####################################################################
         if results.multi_hand_landmarks is not None:
-            for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
-                                                  results.multi_handedness):
+            for hand_landmarks, handedness in zip(
+                results.multi_hand_landmarks, results.multi_handedness
+            ):
                 # Bounding box calculation
                 brect = calc_bounding_rect(debug_image, hand_landmarks)
                 # Landmark calculation
@@ -233,7 +237,7 @@ def normal_mode():
 
                 # Conversion to relative coordinates / normalized coordinates
                 pre_processed_landmark_list = pre_process_landmark(landmark_list)
-                
+
                 # Write to the dataset file
                 logging_csv(number, mode, pre_processed_landmark_list)
 
@@ -247,7 +251,7 @@ def normal_mode():
                     debug_image,
                     brect,
                     handedness,
-                    keypoint_classifier_labels[hand_sign_id]
+                    keypoint_classifier_labels[hand_sign_id],
                 )
         else:
             pass
@@ -255,24 +259,27 @@ def normal_mode():
         debug_image = draw_info(debug_image, fps, mode, number)
 
         # Screen reflection #############################################################
-        cv.imshow('Hand Gesture Recognition', debug_image)
+        cv.imshow("Hand Gesture Recognition", debug_image)
 
     cap.release()
     cv.destroyAllWindows()
 
 
 # Flask route for video streaming mode
-@app.route('/')
+@app.route("/")
 def index():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(
+        generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
+    )
 
-if __name__ == '__main__':
 
-    args = get_args()   
+if __name__ == "__main__":
+
+    args = get_args()
 
     if args.livestream:
         # Stream the app
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host="0.0.0.0", port=5000, debug=True)
 
     else:
         # Run the app locally
