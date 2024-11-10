@@ -8,5 +8,5 @@ from utils.tools import (
     draw_landmarks,
     draw_bounding_rect,
     draw_info_text,
-    draw_info
+    draw_info,
 )
