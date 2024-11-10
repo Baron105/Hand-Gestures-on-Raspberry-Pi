@@ -22,6 +22,9 @@ def select_mode(key, mode):
 
 
 def calc_bounding_rect(image, landmarks):
+    """
+    Calculates the bounding rectangle of the hand region.
+    """
     image_width, image_height = image.shape[1], image.shape[0]
 
     landmark_array = np.empty((0, 2), int)
@@ -40,6 +43,9 @@ def calc_bounding_rect(image, landmarks):
 
 
 def calc_landmark_list(image, landmarks):
+    """
+    Calculates the list of landmarks.
+    """
     image_width, image_height = image.shape[1], image.shape[0]
 
     landmark_point = []
@@ -56,6 +62,11 @@ def calc_landmark_list(image, landmarks):
 
 
 def pre_process_landmark(landmark_list):
+    """
+    Pre-processes the landmark list, which includes:
+    1. Converting to relative coordinates
+    2. Normalization
+    """
     temp_landmark_list = copy.deepcopy(landmark_list)
 
     # Convert to relative coordinates
@@ -83,6 +94,9 @@ def pre_process_landmark(landmark_list):
 
 
 def logging_csv(number, mode, landmark_list):
+    """
+    Logs the keypoint data to a CSV file.
+    """
     if mode == 0:
         pass
     if mode == 1 and (0 <= number <= 25):
@@ -94,6 +108,9 @@ def logging_csv(number, mode, landmark_list):
 
 
 def draw_landmarks(image, landmark_point):
+    """
+    Draws the landmarks on the screen.
+    """
     if len(landmark_point) > 0:
         # Thumb
         cv.line(image, tuple(landmark_point[2]), tuple(landmark_point[3]),
@@ -282,6 +299,9 @@ def draw_landmarks(image, landmark_point):
 
 
 def draw_bounding_rect(use_brect, image, brect):
+    """
+    Draws the bounding rectangle on the screen.
+    """
     if use_brect:
         # Outer rectangle
         cv.rectangle(image, (brect[0], brect[1]), (brect[2], brect[3]),
@@ -291,7 +311,9 @@ def draw_bounding_rect(use_brect, image, brect):
 
 
 def draw_info_text(image, brect, handedness, hand_sign_text):
-
+    """
+    Draws the information text on the screen.
+    """
     cv.rectangle(image, (brect[0], brect[1]), (brect[2], brect[1] - 22),
                  (0, 0, 0), -1)
 
@@ -305,6 +327,9 @@ def draw_info_text(image, brect, handedness, hand_sign_text):
 
 
 def draw_info(image, fps, mode, number):
+    """
+    Draws the information on the screen.
+    """
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
